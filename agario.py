@@ -5,7 +5,7 @@ import pygame
 from random import randint
 
 # Імпортуємо всі класи та функції з файлу my_class.py
-from my_class.pt
+from my_class.py
 
 # Ініціалізуємо всі модулі Pygame
 pygame.init()
@@ -57,3 +57,4 @@ while run == True:
     # Обмежуємо швидкість гри до 60 кадрів на секунду
 
     clock.
+
