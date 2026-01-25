@@ -38,6 +38,7 @@ class Circle(Sprite):
     def draw(self, surface):
         pygame.draw.rect(surface, (0,0,0), self.rect, width=5)
         pygame.draw.circle(surface, self.color, self.rect.center, self.radius)
+        
 class Player(Circle):
     def __init__(self, x=100, y=100, radius=50, speed=0, color=(0, 0, 130)):
           super().__init__(x, y, radius, speed, color)

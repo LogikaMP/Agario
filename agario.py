@@ -5,7 +5,7 @@ import pygame
 from random import randint
 
 # Імпортуємо всі класи та функції з файлу my_class.py
-from my_class.py import *
+from my_class import *
 
 # Ініціалізуємо всі модулі Pygame
 pygame.init()
@@ -49,7 +49,7 @@ while run == True:
         if 
 
             # Зупиняємо гру
-            run 
+            run = False
 
     # Оновлюємо зображення на екрані
     pygame.
