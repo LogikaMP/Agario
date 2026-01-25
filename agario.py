@@ -31,9 +31,14 @@ clock = pygame.time.Clock()
 fon = pygame.image.load("fon.png") 
 fon = pygame.transform.scale(fon, (WIDTH, HEIGHT))
 
+# Player
+player = Player(x=WIDTH//2, y=HEIGHT//2, radius=20, speed=5, 
+                color=(randint(1, 255), randint(1, 255), randint(1, 255)))
+
 # Змінна для керування роботою гри
 run = True 
 
+bg_x, bg_y = 0, 0
 
 # Головний цикл гри, працює поки run == True
 while run:
@@ -42,10 +47,17 @@ while run:
     window.fill(BLACK)
 
     # Малюємо фон у верхньому лівому куті (помилка, якщо fon == None)
-    try:
-        window.blit(fon, (0,0))
-    except:
-        pass
+
+    window.blit(fon, (bg_x, bg_y))
+    window.blit(fon, (bg_x - WIDTH, bg_y))
+    window.blit(fon, (bg_x, bg_y - HEIGHT))
+    window.blit(fon, (bg_x - WIDTH, bg_y - HEIGHT))
+    player.draw(window)
+    player.move()
+    bg_x += player.move_x
+    bg_y += player.move_y
+    bg_x %= WIDTH
+    bg_y %= HEIGHT
 
     # Перебираємо всі події (натискання клавіш, закриття вікна тощо)
     for event in pygame.event.get(): 
