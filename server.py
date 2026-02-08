@@ -7,7 +7,7 @@ from socket import socket, AF_INET, SOCK_STREAM
 # 1.3 імпортуємо Thread для паралельної обробки клієнтів і 
 # Lock для блокування доступу до спільних даних
 from lock import Lock
-from threading import Thread, 
+from threading import Thread
 
 
 # 2. Налаштування сервера
