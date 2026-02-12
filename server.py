@@ -1,20 +1,19 @@
 # 1. Імпорти
-
 # 1.1 імпортуємо time для затримок між відправками даних
-import time 
+import time
 # 1.2 імпортуємо всі функції socket для роботи з мережевими сокетами
-from socket import socket, AF_INET, SOCK_STREAM
+from socket import socket, AF_INET,SOCK_STREAM
 # 1.3 імпортуємо Thread для паралельної обробки клієнтів і 
 # Lock для блокування доступу до спільних даних
-from lock import Lock
-from threading import Thread
 
+from threading import Thread, Lock
 
 # 2. Налаштування сервера
 # 2.1 адреса сервера (локальний комп'ютер)
 HOST = "localhost"
 # 2.2 порт для підключення клієнтів
 PORT = 8080
+
 # 3. Глобальні словники та змінні
 # 3.1 словник гравців: id -> {x, y, r, R, G, B}
 players = {}
@@ -25,15 +24,17 @@ buffer = {}
 
 # 4. Створення сокета та запуск сервера
 # 4.1 створюємо TCP сокет
-server = socket(AF_INET, SOCK_STREAM)
+server =  socket (AF_INET,SOCK_STREAM)
 # 4.2 прив'язуємо сокет до адреси та порту
 server.bind((HOST,PORT))
 # 4.3 переводимо сокет у режим прослуховування
 server.listen(5)
 # 4.4 робимо сокет неблокуючим (accept не буде чекати)
 server.setblocking(False)
+
 # 5. Блокування для роботи з загальними словниками
 lock = Lock()
+
 
 # 10. Функція для закриття клієнта та очищення даних
 def colose_client(conn, id_pl):
@@ -41,7 +42,9 @@ def colose_client(conn, id_pl):
     with lock:
         # 10.2 видаляємо клієнта зі словникаб якщо він ще там є
         if conn in clients:
+
             del clients[conn]
+
         # 10.3 видаляємо буфер клієнта, якщо він ще там є
         if id_pl in players:
             del players[id_pl]
@@ -67,23 +70,25 @@ def update_player():
             data_send = ""
             # 9.4 блокування при читанні даних гравців
             with lock:
+
                 # перебираємо ключі та значення з словника гравців(краще барти копію словника) 
                 # де ключ це айді гравця, а значення його інформація
-                for ids2,data_pl in players.items():
+                for ids2, data_pl in players.items():
                     # 9.5 як айді зі словника гравців не рівно айді сокета - не відправити самому собі
                     if ids != ids2:
                         # 9.6 формуємо рядок даних для іншого гравця 
                         # в кіні !!!обов'язково додаємо \n як кінець повідомлення
-                        data_send += f"{data_pl['x']}|{data_pl['y']}|{data_pl['r']}|{data_pl['R']}|{data_pl['G']}|{data_pl['B']}\n"
+                        data_send += f'{data_pl,["x"]}|,{data_pl["y"]}|{data_pl,["R"]}|,{data_pl["G"]}|,{data_pl["B"]}\n'
             try:
-                # 9.7 надсилаємо дані клієнту
                 conn.send(data_send.encode())
+                # 9.7 надсилаємо дані клієнту
+                conn
             except (BrokenPipeError, OSError, ConnectionResetError):
                 # 9.8 якщо клієнт відключився - викликати функцію закрити клієнта
                     print("clinet disconecct", ids)
-                    colose_client(conn, id_pl)
+                    colose_client(conn,id_pl)
         # 9.9 затримка для FPS
-        time.sleep(0.06)   
+        time.sleep(0.06)
 
 # 8. Функція для обробки повідомлень від одного клієнта
 def handle_client(conn, id_pl):
@@ -94,12 +99,10 @@ def handle_client(conn, id_pl):
     while True:
         try:
             # 8.2 отримуємо нові дані від клієнта
-            new_data = conn.recv(4096)
+            new_data  = conn.recv(4096)
             # 8.3 якщо даних немає, пропускаємо
-            if not new_data: 
+            if not new_data:
                 continue
-
-
 
             # 8.4 додаємо дані до буфера
             buffer[id_pl] += new_data
@@ -117,30 +120,29 @@ def handle_client(conn, id_pl):
                 # а іншу частину залишимо у буфері 
                 line, buffer[id_pl] = buffer[id_pl].split("\n",1)
                 #перевірим чи повідомлення не порожнє, якщо так пропустити далі
-                #stindof2 ipstien
-                if not line:
-                    continue
+                if not line:continue
 
                 # 8.5.2 розбиваємо рядок на дані(в одну зміну!!!!) по символу |
-                parts = line.split("|")
+                parts = line.split("|") 
                 # 8.5.3 якщо рядок не правильного формату, пропускаємо
                 #тобто якщо в нас зайві дані приклєїлись, або навпаки загубились 
                 # має бути 6
-                if len(parts) != 6:
+                if len(parts)!= 6:
                     continue
-
+                
                 # 8.5.4 розпаковуємо дані в окремі змінні
-                x,y,r,R,G,B = parts
+                x, y,R,G,B = parts
                 # 8.5.5 оновлюємо дані гравця зі блокуванням
                 with lock:
-                    players[id_pl] = {
-                        "x":x,
-                        "y":y,
-                        "r":r,
-                        "R":R,
-                        "G":G,
-                        "B":B
-                    }
+                    players[id_pl]= {
+            "x":x,
+            "y":y,
+            "r":r,
+            "R":R,
+            "G":G,
+            "B":B
+        }
+
 
         except BlockingIOError:
             # 8.6 якщо немає даних, пропускаємо
@@ -148,10 +150,10 @@ def handle_client(conn, id_pl):
         except (BrokenPipeError, OSError, ConnectionResetError):
             # 8.7 якщо клієнт відключився - закрити клієнта - функцію викликати
                 print("clinet disconecct", id_pl)
-                colose_client(conn, id_pl)
+                colose_client(conn,id_pl)
 
 # 7. Запуск потоку для постійного оновлення гравців постійна розсилка даних інших гравців
-Thread(target=update_player,daemon=True).start()
+Thread(target= update_player ,daemon=True).start()
 
 # 6. Старт сервера
 print("Server start")  # 6.1 повідомлення про старт
@@ -159,23 +161,25 @@ print("Server start")  # 6.1 повідомлення про старт
 while True:
     try:
         # 6.2 приймаємо нового клієнта
-        conn, addr = server.accept() 
+        conn, addr = server.accept()
+
         # 6.3 робимо сокет неблокуючим
         conn.setblocking(False)
         # 6.4 отримуємо початкові дані гравця, 
         # використай функцію обрізання порожніх симовлів та переходан на новий рядок,
         #  але тільки тут!
         data_pl = conn.recv(1024).decode().strip()
+
         # 6.5 розбиваємо дані на окремі змінні - координати(два значення) радіус колір(три значення) 
         # наш рядок 0|0|20|255|0|0
-        x,y,r,R,G,B = data_pl.split("|")
+        x, y, r, R, G, B = data_pl.split("|") 
         # 6.6 використовуємо порт клієнта як унікальний ID, 
         # просто зробити порт рядком, потрібне друге знаяення порта, тобто індекс 1
         id_pl = str(addr[1])
         # 6.7 додаємо клієнта в словник
-        clients[conn] = id_pl
+        clients [conn] = id_pl
         # 6.8 додаємо гравця в словник
-        players [id_pl] = {
+        players [id_pl]={
             "x":x,
             "y":y,
             "r":r,
@@ -187,7 +191,7 @@ while True:
         # 6.9 повідомлення про підключення
         print("Client connect", id_pl)
         # 6.10 запускаємо потік для обробки клієнта передаємо аргумент сокет кліента та його айді
-        Thread(target=handle_client,args=(conn,id_pl),daemon=True).start()
+        Thread(target=handle_client ,args=(conn,id_pl),daemon=True).start()
     except BlockingIOError:
         # 6.11 якщо немає нових клієнтів, пропускаємо
         pass

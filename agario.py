@@ -8,9 +8,8 @@ from random import randint  # Генерація випадкових чисел
 from my_class import*  # Класи Player, Food
 
 '''1. Імпортуємо модулі для мережі і потоків'''
-
-from socket import socket, AF_INET, SOCK_STREAM  # socket для роботи з сервером
-from threading import Thread   # Thread для паралельного отримання даних
+from socket import socket, AF_INET,SOCK_STREAM  # socket для роботи з сервером
+from threading import Thread # Thread для паралельного отримання даних
 
 ''''''''''''
 
@@ -49,17 +48,19 @@ run = True
 fon_x,fon_y = 0,0
 
 '''2. Початкові координати "світу"(цент екрану) та словник інших гравців(порожній), змінна для буфера'''
-word_x, word_y = 0, 0
+word_x, word_y = 0,0
 other_player = {}  #id:{x:x, y:y, r:r, c:c}
 buffer = ""
-nickname = "Ayanam"
+nickname = "Saha" 
+
 '''3. Налаштовуємо сокет клієнта'''
 ''''''
-client = socket(AF_INET, SOCK_STREAM)  # створити сокет
-client.connect(("6.tcp.eu.ngrok.io", 14414))  #зв'язатись із сервером
-R,G,B =player.color  # отримати колір гравця
+client = socket(AF_INET,SOCK_STREAM ) # створити сокет
+client.connect(("6.tcp.eu.ngrok.io", 14414))#зв'язатись із сервером
+#(0,0,0)
+R,G,B = player.color
 my_data = f"{word_x}|{word_y}|{player.radius}|{R}|{G}|{B}|{nickname}\n"  # формує рядок з моїми даними - регеструємось в грі, незабудь про символ кінця рядка!
-client.send(my_data.encode())  # надсилаємо мої дані на сервер
+client.send(my_data.encode()) # надсилаємо мої дані на сервер
 ''''''
 
 '''3.Функція для оновлення даних інших гравців для потоку, постійного оновлення '''
@@ -82,31 +83,29 @@ def update_players():
             # поки символ кінця рядка є у буфері
             while "\n" in buffer:
                 #розбити буфер на два значення по символу кінця рядка
-                line, buffer = buffer.split("\n", 1)
-
+                line, buffer = buffer.split("\n",1)
                 #якщо повідомлення порожнє - пропустити
                 if not line:
                     continue
                     
                 # розбити на частини повідомлення в одну зміну-список!
                 # щоб впевнитись що все є і нічого зайвого немає    
-                parts = line.split("|")
+                parts = line.split("|") 
                 #перевірити чи все є - потрібно 7 значень
                 #айді, ч, у, радійс, колір - 3 значення
-                if len(parts) != 8:
-                    continue
+                if len(parts)!= 8:
+                    continue 
                 # розпкаовуємо список в окремі змінін
                 ids,x,y,radius,R,G,B,nickname = parts
                 # перетворити окремі значення кольору в кортеж
-                color = (int(R),int(G),int(B))
+                color =(int(R),int(G),int(B))
                 #онвоити дані в словнику інших гравців
                 other_player [ids] = {
                     "x":int(x),
                     "y":int(y),
                     "r":int(radius),
                     "color":color,
-                    "nickname": nickname
-
+                    "nick": nickname
                 }
 
         except:
@@ -115,6 +114,7 @@ def update_players():
 Thread(target=update_players,daemon=True).start()
 
 ''''''  
+
 font = pygame.font.Font(None, 16)
 # Головний цикл гри
 while run:
@@ -127,15 +127,13 @@ while run:
     #оновити свої координати у світі(всі змішення без центрування відносоно камери)
     word_x += player.move_x
     word_y += player.move_y
-    fon_x %= WIDTH
-    fon_y %= HEIGHT
     # формуємо рядко з моїми даними
+    #!незабудь по симовл кінця рядка - \n
     my_data = f"{word_x}|{word_y}|{player.radius}|{R}|{G}|{B}|{nickname}\n"  # формує рядок з моїми даними - регеструємось в грі, незабудь про символ кінця рядка!
 
-    #!незабудь по симовл кінця рядка - \n
     # спробуємо відправити серверу наші дані
     try:
-        client.send(my_data.encode())
+        client.send(my_data.encode()) #відправити усе
     except (BlockingIOError, BrokenPipeError):
         pass
     ''''''
@@ -161,16 +159,17 @@ while run:
         # розраховуємо координати гравця 
         # відносно камери + половина камери
         # відносно нас -наші координати в світі
-        x = player_data["x"] - word_x + WIDTH//2
+        x = player_data["x"] - word_x +WIDTH//2
         y = player_data["y"] - word_y + HEIGHT//2
         #малюємо коло за координатами, радіус та колір зі словникі
+
         pygame.draw.circle(window,player_data["color"],(x,y),player_data["r"])
-        name = font.render(player_data["nickname"], True, WHITE)
+        name = font.render(player_data["nick"],True,WHITE)
         window.blit(name,(x,y+player_data["r"]))
         rect = pygame.Rect(x - player_data["r"],y - player_data["r"],
-                            player_data["r"]*2, player_data["r"]*2)    
-        if player.rect.colliderect(rect):   
-            pass   # малюємо нікнейм гравця
+                           player_data["r"] * 2 ,player_data["r"] * 2)
+        if player.rect.colliderect(rect):
+            pass
         # викликати метод гравця для перевірки зіткнення з іншим гравцем
         #передати координати та радіус іншого гравця
         # отримаємо виграв/програв
