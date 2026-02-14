@@ -10,14 +10,14 @@ from my_class import*  # Класи Player, Food
 '''1. Імпортуємо модулі для мережі і потоків'''
 from socket import socket, AF_INET,SOCK_STREAM  # socket для роботи з сервером
 from threading import Thread # Thread для паралельного отримання даних
-from launcher import Launcher # Імпорт класу Launcher для стартового вікна гри
+from launcher import Launcher
 ''''''''''''
-menu = Launcher()  # Створюємо об'єкт стартового вікна
+menu = Launcher()
 menu.window_start()
-nick = menu.nick
-ip = menu.ip # Ініціалізуємо всі модулі Pygame
-port = menu.port
 pygame.init()
+nickname = menu.nick
+ip = menu.ip
+port = menu.port
 
 # Задаємо ширину і висоту вікна гри
 WIDTH, HEIGHT = 500, 500
@@ -40,7 +40,7 @@ fon = pygame.transform.scale(fon,(WIDTH,HEIGHT))
 
 # Гравець
 player = Player(x=WIDTH//2,y=HEIGHT//2,radius=20,
-                speed=5,color=((randint(0,255)),randint(0,255),randint(0,255)),nickname=nick)  # Створюємо гравця з випадковим кольором та нікнеймом зі стартового вікна")
+                speed=5,color=((randint(0,255)),randint(0,255),randint(0,255)),nickname=nickname)
 
 # Їжа
 foods = [Food() for i in range(300)]
@@ -54,6 +54,7 @@ fon_x,fon_y = 0,0
 word_x, word_y = 0,0
 other_player = {}  #id:{x:x, y:y, r:r, c:c}
 buffer = ""
+
 
 '''3. Налаштовуємо сокет клієнта'''
 ''''''
