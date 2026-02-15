@@ -13,7 +13,7 @@ class Cicrle:
         self.dx = choice([-5,-4,-3,3,4,5])  # Випадкова швидкість по X вибрати серед [-5, -4, -3, 3, 4, 5]
         self.dy = choice([-5,-4,-3,3,4,5])  # Випадкова швидкість по Y
         self.color = "#{:06x}".format(randint(0, 0xFFFFFF))  # Випадковий колір кола у HEX
-        self.id = canvas.create_oval(self.x0,self.y0,self.x1,self.y1,self.color)  # Створюємо коло на Canvas - передати координати верхньої та нижньої межі, колір
+        self.id = canvas.create_oval(self.x0,self.y0,self.x1,self.y1,fill=self.color)  # Створюємо коло на Canvas - передати координати верхньої та нижньої межі, колір
         self.canvas = canvas # Зберігаємо посилання на Canvas для подальшого руху
 
 
