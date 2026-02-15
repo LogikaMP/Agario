@@ -40,7 +40,8 @@ fon = pygame.transform.scale(fon,(WIDTH,HEIGHT))
 
 # Гравець
 player = Player(x=WIDTH//2,y=HEIGHT//2,radius=20,
-                speed=5,color=((randint(0,255)),randint(0,255),randint(0,255)),nickname=nickname)
+                speed=5,color=((randint(0,255)),randint(0,255),
+                               randint(0,255)),nickname=nickname)
 
 # Їжа
 foods = [Food() for i in range(300)]
@@ -59,7 +60,7 @@ buffer = ""
 '''3. Налаштовуємо сокет клієнта'''
 ''''''
 client = socket(AF_INET,SOCK_STREAM ) # створити сокет
-client.connect(("6.tcp.eu.ngrok.io",13371))#зв'язатись із сервером
+client.connect((f"{ip}.tcp.eu.ngrok.io",int(port)))#зв'язатись із сервером
 ''''''
 
 '''3.Функція для оновлення даних інших гравців для потоку, постійного оновлення '''
@@ -160,7 +161,7 @@ while run:
     '''5. Відобрадаємо усіх інших граців та перевірка зіткнення з ними'''
     # перебираємо словник іншиг гравці по ключу та значенню
     #де ключ - це айді, значення - усі його дані
-    for ids,player_data in other_player.items():
+    for ids,player_data in other_player.copy().items():
         # розраховуємо координати гравця 
         # відносно камери + половина камери
         # відносно нас -наші координати в світі
@@ -177,7 +178,22 @@ while run:
             '''порівняти радіуси гравців, 
             якщо наш радіус більший - збільшити свій радіус на радіус іншого гравця(викликати метод зміни розміру гравця)
             інакше - програти, тобто закрити клієнта та вийти з гри'''
-            pass
+            if player.radius > player_data["r"]:
+                del other_player[ids]
+                #відправити повідомлення на сервер про видалення цього гравця
+                player.grow(player_data["r"])
+            elif player.radius < player_data["r"]:
+                end = Launcher()
+                end.window_end()
+                if end.end:
+                    run = False
+                if end.restart:
+                    player.radius = 20
+                    fon_x = 0
+                    fon_y = 0
+                    word_x = 0
+                    word_y = 0
+                   
         # викликати метод гравця для перевірки зіткнення з іншим гравцем
         #передати координати та радіус іншого гравця
         # отримаємо виграв/програв
