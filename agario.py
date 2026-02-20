@@ -13,6 +13,16 @@ from threading import Thread # Thread для паралельного отрим
 
 ''''''''''''
 
+<<<<<<< Updated upstream
+=======
+menu = Launcher()
+
+menu.window_start()
+
+nick = menu.nick
+ip = menu.ip
+port = menu.port
+>>>>>>> Stashed changes
 # Ініціалізуємо всі модулі Pygame
 pygame.init()
 
@@ -91,7 +101,13 @@ def update_players():
                 то це повідомлення про відключення клієнта,
                 де перше значення - це айді клієнта, а друге значення - це слово exit
                 якщо це так, то видалити цього клієнта зі словника інших гравців та пропустити далі'''
+<<<<<<< Updated upstream
                 #if
+=======
+                if len(parts) == 2:
+                    if parts[0] == "exit":
+                        del other_player[parts[0]]
+>>>>>>> Stashed changes
                 #перевірити чи все є - потрібно 7 значень
                 #айді, ч, у, радійс, колір - 3 значення
                 if len(parts)!= 8:
