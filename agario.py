@@ -15,7 +15,7 @@ from threading import Thread # Thread для паралельного отрим
 
 ''''''''''''
 
-menu = Laucher()
+menu = Launcher()
 
 menu.window_start()
 
@@ -101,7 +101,7 @@ def update_players():
                 де перше значення - це айді клієнта, а друге значення - це слово exit
                 якщо це так, то видалити цього клієнта зі словника інших гравців та пропустити далі'''
                 if len(parts) == 2:
-                    if parts[0] = "exit":
+                    if parts[0] == "exit":
                         del other_player[parts[0]]
                 #перевірити чи все є - потрібно 7 значень
                 #айді, ч, у, радійс, колір - 3 значення
