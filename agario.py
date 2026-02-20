@@ -12,7 +12,13 @@ from socket import socket, AF_INET,SOCK_STREAM  # socket для роботи з 
 from threading import Thread # Thread для паралельного отримання даних
 
 ''''''''''''
+from launcher import Launcher
 
+menu = Launcher()
+menu.window_start()
+nick = menu.nick
+ip = menu.ip
+port = menu.port
 # Ініціалізуємо всі модулі Pygame
 pygame.init()
 
@@ -37,7 +43,7 @@ fon = pygame.transform.scale(fon,(WIDTH,HEIGHT))
 
 # Гравець
 player = Player(x=WIDTH//2,y=HEIGHT//2,radius=20,
-                speed=5,color=((randint(0,255)),randint(0,255),randint(0,255)),nickname="ola-la")
+                speed=5,color=((randint(0,255)),randint(0,255),randint(0,255)),nickname=nick)
 
 # Їжа
 foods = [Food() for i in range(300)]
@@ -51,12 +57,11 @@ fon_x,fon_y = 0,0
 word_x, word_y = 0,0
 other_player = {}  #id:{x:x, y:y, r:r, c:c}
 buffer = ""
-nickname = "ola-la"
 
 '''3. Налаштовуємо сокет клієнта'''
 ''''''
 client = socket(AF_INET,SOCK_STREAM ) # створити сокет
-client.connect(("6.tcp.eu.ngrok.io",13371))#зв'язатись із сервером
+client.connect((f"{ip}.tcp.eu.ngrok.io",int(port)))#зв'язатись із сервером
 ''''''
 
 '''3.Функція для оновлення даних інших гравців для потоку, постійного оновлення '''
@@ -91,7 +96,10 @@ def update_players():
                 то це повідомлення про відключення клієнта,
                 де перше значення - це айді клієнта, а друге значення - це слово exit
                 якщо це так, то видалити цього клієнта зі словника інших гравців та пропустити далі'''
-                #if
+                if len(parts) == 2:
+                    if parts[1] == "exit":
+                        del other_player[parts[0]]
+            
                 #перевірити чи все є - потрібно 7 значень
                 #айді, ч, у, радійс, колір - 3 значення
                 if len(parts)!= 8:
@@ -131,7 +139,7 @@ while run:
     # формуємо рядко з моїми даними
     #!незабудь по симовл кінця рядка - \n
     R,G,B = player.color
-    my_data = f"{word_x}|{word_y}|{player.radius}|{R}|{G}|{B}|{nickname}\n"  # формує рядок з моїми даними - регеструємось в грі, незабудь про символ кінця рядка!
+    my_data = f"{word_x}|{word_y}|{player.radius}|{R}|{G}|{B}|{nick}\n"  # формує рядок з моїми даними - регеструємось в грі, незабудь про символ кінця рядка!
 
     # спробуємо відправити серверу наші дані
     try:
@@ -174,7 +182,16 @@ while run:
             '''порівняти радіуси гравців, 
             якщо наш радіус більший - збільшити свій радіус на радіус іншого гравця(викликати метод зміни розміру гравця)
             інакше - програти, тобто закрити клієнта та вийти з гри'''
-            pass
+            if player.radius > player_data["r"]:
+                player.grow()
+            else:
+                menu.window_end()
+                if menu.end:
+                    run = False
+                if menu.restart:
+                    player.radius = 20
+                    word_x,word_y = 0,0
+                    fon_x,fon_y = 0,0
         # викликати метод гравця для перевірки зіткнення з іншим гравцем
         #передати координати та радіус іншого гравця
         # отримаємо виграв/програв
