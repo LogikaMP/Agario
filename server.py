@@ -82,11 +82,12 @@ def update_player():
             try:
                 conn.send(data_send.encode())
                 # 9.7 надсилаємо дані клієнту
+                
             except (BrokenPipeError, OSError, ConnectionResetError):
                 # 9.8 якщо клієнт відключився - викликати функцію закрити клієнта
                     '''відслати повідолмоення про відключення всім клієнтам не потрібно,
                     оскільки при відключенні клієнта його дані видаляються зі словника гравця'''
-                    conn.send(f"{id_pl}|exit")
+                    conn.send(f"{id_pl}|exit".encode())
                     print("clinet disconecct", ids)
                     colose_client(conn,id_pl)
                     break
@@ -155,7 +156,7 @@ def handle_client(conn, id_pl):
             # 8.7 якщо клієнт відключився - закрити клієнта - функцію викликати
                 '''відслати повідолмоення про відключення всім клієнтам не потрібно,
                     оскільки при відключенні клієнта його дані видаляються зі словника гравця'''
-                conn.send(f"{id_pl}|exit")
+                conn.send(f"{id_pl}|exit".encode())
                 print("clinet disconecct", id_pl)
                 colose_client(conn,id_pl)
                 break
