@@ -10,11 +10,14 @@ from my_class import*  # Класи Player, Food
 '''1. Імпортуємо модулі для мережі і потоків'''
 from socket import socket, AF_INET,SOCK_STREAM  # socket для роботи з сервером
 from threading import Thread # Thread для паралельного отримання даних
-
+from launcher import Launcher
 ''''''''''''
-
-# Ініціалізуємо всі модулі Pygame
+menu = Launcher()
+menu.window_start()
 pygame.init()
+nickname = menu.nick
+ip = menu.ip
+port = menu.port
 
 # Задаємо ширину і висоту вікна гри
 WIDTH, HEIGHT = 500, 500
@@ -37,7 +40,8 @@ fon = pygame.transform.scale(fon,(WIDTH,HEIGHT))
 
 # Гравець
 player = Player(x=WIDTH//2,y=HEIGHT//2,radius=20,
-                speed=5,color=((randint(0,255)),randint(0,255),randint(0,255)),nickname="ola-la")
+                speed=5,color=((randint(0,255)),randint(0,255),
+                               randint(0,255)),nickname=nickname)
 
 # Їжа
 foods = [Food() for i in range(300)]
@@ -51,12 +55,12 @@ fon_x,fon_y = 0,0
 word_x, word_y = 0,0
 other_player = {}  #id:{x:x, y:y, r:r, c:c}
 buffer = ""
-nickname = "ola-la"
+
 
 '''3. Налаштовуємо сокет клієнта'''
 ''''''
 client = socket(AF_INET,SOCK_STREAM ) # створити сокет
-client.connect(("6.tcp.eu.ngrok.io",13371))#зв'язатись із сервером
+client.connect((f"{ip}.tcp.eu.ngrok.io",int(port)))#зв'язатись із сервером
 ''''''
 
 '''3.Функція для оновлення даних інших гравців для потоку, постійного оновлення '''
@@ -94,6 +98,9 @@ def update_players():
                 #if
                 #перевірити чи все є - потрібно 7 значень
                 #айді, ч, у, радійс, колір - 3 значення
+                if len(parts) == 2 and parts[1]=="exit":
+                    del other_player[parts[0]]
+                    continue
                 if len(parts)!= 8:
                     continue 
                 # розпкаовуємо список в окремі змінін
@@ -128,6 +135,31 @@ while run:
     #оновити свої координати у світі(всі змішення без центрування відносоно камери)
     word_x += player.move_x
     word_y += player.move_y
+    # ----- ОБМЕЖЕННЯ СВІТУ 1000x1000 -----
+
+    # ліва межа
+    if word_x < 0:
+        word_x = 0
+        if player.move_x < 0:
+            player.move_x = 0
+
+    # права межа
+    if word_x > 1000:
+        word_x = 1000
+        if player.move_x > 0:
+            player.move_x = 0
+
+    # верхня межа
+    if word_y < 0:
+        word_y = 0
+        if player.move_y < 0:
+            player.move_y = 0
+
+    # нижня межа
+    if word_y > 1000:
+        word_y = 1000
+        if player.move_y > 0:
+            player.move_y = 0
     # формуємо рядко з моїми даними
     #!незабудь по симовл кінця рядка - \n
     R,G,B = player.color
@@ -157,7 +189,7 @@ while run:
     '''5. Відобрадаємо усіх інших граців та перевірка зіткнення з ними'''
     # перебираємо словник іншиг гравці по ключу та значенню
     #де ключ - це айді, значення - усі його дані
-    for ids,player_data in other_player.items():
+    for ids,player_data in other_player.copy().items():
         # розраховуємо координати гравця 
         # відносно камери + половина камери
         # відносно нас -наші координати в світі
@@ -174,7 +206,22 @@ while run:
             '''порівняти радіуси гравців, 
             якщо наш радіус більший - збільшити свій радіус на радіус іншого гравця(викликати метод зміни розміру гравця)
             інакше - програти, тобто закрити клієнта та вийти з гри'''
-            pass
+            if player.radius > player_data["r"]:
+                del other_player[ids]
+                #відправити повідомлення на сервер про видалення цього гравця
+                player.grow(player_data["r"])
+            elif player.radius < player_data["r"]:
+                end = Launcher()
+                end.window_end()
+                if end.end:
+                    run = False
+                if end.restart:
+                    player.radius = 20
+                    fon_x = 0
+                    fon_y = 0
+                    word_x = 0
+                    word_y = 0
+                   
         # викликати метод гравця для перевірки зіткнення з іншим гравцем
         #передати координати та радіус іншого гравця
         # отримаємо виграв/програв
