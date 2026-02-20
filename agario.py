@@ -98,6 +98,9 @@ def update_players():
                 #if
                 #перевірити чи все є - потрібно 7 значень
                 #айді, ч, у, радійс, колір - 3 значення
+                if len(parts) == 2 and parts[1]=="exit":
+                    del other_player[parts[0]]
+                    continue
                 if len(parts)!= 8:
                     continue 
                 # розпкаовуємо список в окремі змінін
@@ -132,6 +135,31 @@ while run:
     #оновити свої координати у світі(всі змішення без центрування відносоно камери)
     word_x += player.move_x
     word_y += player.move_y
+    # ----- ОБМЕЖЕННЯ СВІТУ 1000x1000 -----
+
+    # ліва межа
+    if word_x < 0:
+        word_x = 0
+        if player.move_x < 0:
+            player.move_x = 0
+
+    # права межа
+    if word_x > 1000:
+        word_x = 1000
+        if player.move_x > 0:
+            player.move_x = 0
+
+    # верхня межа
+    if word_y < 0:
+        word_y = 0
+        if player.move_y < 0:
+            player.move_y = 0
+
+    # нижня межа
+    if word_y > 1000:
+        word_y = 1000
+        if player.move_y > 0:
+            player.move_y = 0
     # формуємо рядко з моїми даними
     #!незабудь по симовл кінця рядка - \n
     R,G,B = player.color
