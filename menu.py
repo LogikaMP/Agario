@@ -1,15 +1,17 @@
 import pygame                 # Імпортуємо бібліотеку pygame для створення гри
 from my_class import *       # Імпортуємо всі класи з файлу my_class (наприклад Button)
-                           # Імпортуємо модуль для роботи з json файлами
+import json                           # Імпортуємо модуль для роботи з json файлами
 
+game_part ="menu"
 pygame.init()                # Запускаємо всі модулі pygame
 
 WIDTH, HEIGHT = 500, 500    # Створюємо змінні ширини і висоти вікна
-list_complexity =  # Список можливих рівнів складності
+list_complexity = ["Easy", "Medium", "Hard"] # Список можливих рівнів складності
 
 # Відкриваємо файл налаштувань
-with 
-    current_complexty =   # Зчитуємо поточну складність із файлу
+with open("settings.json", "r") as settings:
+    data = json.loads(settings)
+    current_complexity = data["complexity"]# Зчитуємо поточну складність із файлу
 
 index = 0                                          # Індекс для перемикання складності
 window = pygame.display.set_mode((WIDTH, HEIGHT))  # Створюємо ігрове вікно
@@ -18,19 +20,30 @@ clock = pygame.time.Clock()                        # Створюємо тайм
 
 # ---------- ФУНКЦІЇ ДЛЯ КНОПОК ----------
 
-def start_game():            # Функція запуску гри
+def start_game():
+    global game_part
+    game_part = "game"
            # Використовуємо глобальну змінну стану гри
            # Перемикаємо сцену на гру
 
 
-def exit_game():             # Функція виходу з гри
+def exit_game():
+    global game_part
+    game_part = "exit"             # Функція виходу з гри
            # Отримуємо доступ до глобальної змінної
           # Перемикаємо сцену на вихід
 
 
-def choice_complexity():     # Функція зміни складності
-       # Використовуємо глобальні змінні
-       # Переходимо до наступної складності
+def choice_complexity():
+    global index, current_complexity   # Функція зміни складності
+    index += 1
+    if index >= len(list_complexity):
+        index = 0
+    current_complexity = list_complexity[index]
+    complexity.add_text(text=f"Difficulty: {current_complexity}")   # Використовуємо глобальні змінні
+    data = {"complexity": current_complexity}
+    with open("settings.json", "w") as settings:
+        json.dumps(data,settings)   # Переходимо до наступної складності
      # Якщо дійшли до кінця списку
        # Починаємо знову з першого елемента
      # Записуємо нову складність
@@ -43,23 +56,29 @@ def choice_complexity():     # Функція зміни складності
 # ---------- СТВОРЕННЯ КНОПОК ----------
 
 # Текст з поточною складністю
-complexity =
+complexity = Button(x=100, y=150, w=300, h=60, color=(100, 100, 0),
+                     color_text=(0, 0, 0), text=f"Difficulty: {current_complexity}", command=None)
 
 # Кнопка старту гри
-btn_play = 
+btn_play = Button(x=100, y=200, w=300, h=60, color=(100, 100, 0),
+                   color_text=(0, 0, 0), text="Play", command=start_game)
 # Кнопка зміни складності
-btn_complaxity 
+btn_complexity = Button(x=100, y=250, w=300, h=60, color=(100, 100, 0),
+                         color_text=(0, 0, 0), text="Choose complexity", command=choice_complexity)
 # Кнопка виходу
-btn_eixt
+btn_exit = Button(x=100, y=300, w=300, h=60, color=(100, 100, 0),
+                   color_text=(0, 0, 0), text="Leave", command=exit_game)
 
 
 # ---------- ЕКРАНИ ГРИ ----------
 
 # Напис GAME
-game 
+game = Button(x=250, y=200, w=300, h=60, color=(100, 100, 0),
+               color_text=(0, 0, 0), text="GAME", command=None)
 
 # Напис EXIT GAME
-buy_game
+buy_game = Button(x=250, y=20, w=300, h=60, color=(100, 100, 0),
+                   color_text=(0, 0, 0), text="Donate, pls", command=None)
 
 
 run = True          # Змінна роботи головного циклу
@@ -75,7 +94,10 @@ while run:
     # ---------- МЕНЮ ----------
     if game_part=="menu":
 
-             # Малюємо текст складності
+        complexity.draw(window)
+        btn_play.draw(window)
+        btn_exit.draw(window)
+                 # Малюємо текст складності
 
                # Малюємо кнопку
                # Перевіряємо чи її натиснули
@@ -90,11 +112,11 @@ while run:
     # ---------- ГРА ----------
     elif game_part == "game":
                # Малюємо напис GAME
-
+        game.draw(window)
 
     # ---------- ВИХІД ----------
     elif game_part =="exit":
-
+        buy_game.draw(window)
                 # Малюємо напис EXIT
 
                     # Збільшуємо таймер

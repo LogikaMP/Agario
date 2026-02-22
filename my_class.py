@@ -89,19 +89,19 @@ class Food(Circle):
          else:
               return False
               
-class Button():  # Створюємо клас кнопки, який наслідує властивості класу Sprite
+class Button(Sprite):  # Створюємо клас кнопки, який наслідує властивості класу Sprite
      
-     def __init__  
+     def __init__(self, x, y, w, h, color, color_text, text, command):
           # Конструктор класу. Виконується при створенні об'єкта кнопки
-
+          super().__init__(x, y, w, h, None, None, color)
           # Викликаємо конструктор батьківського класу Sprite і передаємо координати, розміри та колір
-          self.color_text 
+          self.color_text = color_text
           # Зберігаємо колір тексту кнопки
-          self.command 
+          self.command = command
           # Зберігаємо функцію, яка виконається при натисканні кнопки
-          self.  
+          self.add_text(text)
           # Викликаємо метод створення тексту на кнопці
-          self.was_pressed  
+          self.was_pressed  = False
           # Прапорець, що показує чи була кнопка натиснута раніше
 
 
@@ -109,43 +109,39 @@ class Button():  # Створюємо клас кнопки, який наслі
           # Метод створення та розміщення тексту на кнопці
 
           # h = 0.45, w = 0.55 (коефіцієнти підбору розміру шрифту)
-          size_h = 
+          size_h = self.rect.height // 0.45
           # Розраховуємо розмір шрифту від висоти кнопки
-          size_w = 
+          size_w = self.rect.width // (0.55*len(text))
           # Розраховуємо розмір шрифту від ширини кнопки та довжини тексту
-          font_size = 
+          font_size = min(size_h, size_w)
           # Обираємо менше значення, щоб текст точно помістився
-          font = 
+          font = pygame.font.Font(None, font_size)
           # Створюємо шрифт потрібного розміру
-          self.text =  
+          self.text = font.render(text=text, antialias=True, color=self.color_text)
           # Створюємо зображення тексту
-          self.text_x =  
+          self.text_x = (self.rect.w - self.text.get_width()) // 2 + self.rect.x
           # Обчислюємо координату X для центрування тексту по горизонталі
-          self.text_y = 
+          self.text_y = (self.rect.h - self.text.get_height()) // 2 + self.rect.y
           # Обчислюємо координату Y для центрування тексту по вертикалі
 
 
      def draw(self, surface):  
-          # Метод відмалювання кнопки на екрані
-
-          # Малюємо саму кнопку через метод батьківського класу
-
-          # Малюємо текст поверх кнопки
-
+          super().draw(surface)
+          surface.blit(self.text,(self.text_x, self.text_y))
 
      def is_clicked(self):  
           # Метод перевіряє чи натиснута кнопка
 
-          if   
+          if self.command:
                # Перевіряємо чи є функція для виконання
-               click =
+               click = pygame.mouse.get_pressed()[0]
                # Перевіряємо чи натиснута ліва кнопка миші
-               pos = 
+               pos = pygame.mouse.get_pos()
                # Отримуємо поточну позицію курсора
-               if  
+               if click and self.rect.collidepoint(pos) and not self.was_pressed:
                     # Якщо кнопка миші натиснута, курсор знаходиться на кнопці
                     # і попередній стан не був натисканням
-                    self.
+                    self.command()
                     # Виконуємо функцію кнопки
-               self. 
+               self.was_pressed = click
                # Запам’ятовуємо стан кнопки миші, щоб не викликати функцію багато разів
