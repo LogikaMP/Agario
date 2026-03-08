@@ -52,11 +52,14 @@ class Launcher(CTk):
 
         self.circles = [Cicrle(self.fon) for i in range(30)]
         self.update_circles()
+        self.end = False
+        self.restart = False
 
     def update_circles(self):
         for circles in self.circles:
             circles.move()
         self.after(16, self.update_circles)
+
 
     def window_start(self):
 
